@@ -25,6 +25,27 @@ using namespace std;
 using namespace cv;
 
 
+double getPSNR(const Mat& I1, const Mat& I2)
+{
+    Mat s1;
+    absdiff(I1, I2, s1);       // |I1 - I2|
+    s1.convertTo(s1, CV_32F);  // cannot make a square on 8 bits
+    s1 = s1.mul(s1);           // |I1 - I2|^2
+    
+    Scalar s = sum(s1);         // sum elements per channel
+    
+    double sse = s.val[0] + s.val[1] + s.val[2]; // sum channels
+    
+    if( sse <= 1e-10) // for small values return zero
+        return 0;
+    else
+    {
+        double  mse =sse /(double)(I1.channels() * I1.total());
+        double psnr = 10.0*log10((255*255)/mse);
+        return psnr;
+    }
+}
+
 Scalar getMSSIM( const Mat& i1, const Mat& i2)
 {
     const double C1 = 6.5025, C2 = 58.5225;
@@ -172,8 +193,12 @@ int main(int argc, char** argv) {
     cv::Mat Y2(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
     
     
+    cout << int(buf_Y[0]) << endl;
+    cout << int(Y1.at<int>(0, 0)) << endl;
+    
     Scalar final_mssim = getMSSIM(Y1, Y2);
     cout << "Final MSSIM Value  " << final_mssim << endl;
+    
     
     final_mssim = getMSSIM(Y2, Y1);
     cout << "Final MSSIM Value  " << final_mssim << endl;
