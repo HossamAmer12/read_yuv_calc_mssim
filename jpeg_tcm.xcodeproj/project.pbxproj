@@ -216,11 +216,7 @@
 		90DC916621502544004FCBCF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					/usr/local/Cellar/opencv/3.4.1_5/include,
-					"-L/usr/local/Cellar/opencv/3.4.1_5/lib/**",
-					"/usr/local/Cellar/opencv/3.4.1_5/include/opencv/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/opencv/3.4.1_5/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/opencv/3.4.1_5/lib;
 				OTHER_LDFLAGS = (
 					"-lopencv_stitching",
@@ -274,11 +270,7 @@
 		90DC916721502544004FCBCF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					/usr/local/Cellar/opencv/3.4.1_5/include,
-					"-L/usr/local/Cellar/opencv/3.4.1_5/lib/**",
-					"/usr/local/Cellar/opencv/3.4.1_5/include/opencv/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/opencv/3.4.1_5/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/opencv/3.4.1_5/lib;
 				OTHER_LDFLAGS = (
 					"-lopencv_stitching",
