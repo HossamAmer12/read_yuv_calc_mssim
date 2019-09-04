@@ -12,10 +12,11 @@
 #include <string>
 
 #include <math.h>
-#include <ctime>
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
+//#include <ctime>
+//#include <cv.h>
+//#include <cxcore.h>
+//#include <highgui.h>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
