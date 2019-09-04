@@ -2,5 +2,5 @@
 read_yuv_calc_mssim
 
 
-Reads two YUV files and calculates MSSIM using OpenCV
+Reads two YUV files or two JPEG files and calculates MSSIM using OpenCV
 
