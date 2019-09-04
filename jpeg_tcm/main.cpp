@@ -175,6 +175,9 @@ int main(int argc, char** argv) {
     Scalar final_mssim = getMSSIM(Y1, Y2);
     cout << "Final MSSIM Value  " << final_mssim << endl;
     
+    final_mssim = getMSSIM(Y2, Y1);
+    cout << "Final MSSIM Value  " << final_mssim << endl;
+    
     delete [] buf_Y;
     delete [] buf_Y2;
     
