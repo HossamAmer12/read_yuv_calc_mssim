@@ -24,6 +24,26 @@
 using namespace std;
 using namespace cv;
 
+template <class Container>
+static void split1(const std::string& str, Container& cont, char delim = ' ')
+{
+    std::stringstream ss(str);
+    std::string token;
+    while (std::getline(ss, token, delim)) {
+        
+        cont.push_back(token);
+    }
+}
+
+static int convertStringToNumber(const string& str)
+{
+    int number;
+    std::istringstream iss (str);
+    iss >> number;
+    
+    return number;
+}
+
 Scalar getMSSIM( const Mat& i1, const Mat& i2)
 {
     const double C1 = 6.5025, C2 = 58.5225;
@@ -95,7 +115,9 @@ char* read_yuv(string filename, int width, int height)
         myfile.read (buffer, length);
         
         if (myfile)
-            std::cout << "all characters read successfully." << endl;
+        {
+//         std::cout << "all characters read successfully." << endl;   
+        }
         else
             std::cout << "error: only " << myfile.gcount() << " could be read" << endl;
         myfile.close();
@@ -121,29 +143,40 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    //
-    // read image 1
-//    string f1 = "/Volumes/MULTICOMHD2/validation_original/1/ILSVRC2012_val_00000037.JPEG";
-//    string  f2 = "/Volumes/MULTICOMHD2/validation_generated_QF/1/ILSVRC2012_val_00000037-QF-80.JPEG";
-    
     // Input file:
     std::string f1_yuv = argv[1];
 
     // Input file:
     std::string f2_yuv = argv[2];
     
-    // Input file:
+    // Output text file:
     std::string out_file = argv[3];
     
+    size_t found = f1_yuv.find_last_of("/\\");
+    std::string filename_first_token = f1_yuv.substr(found+1);
+    found = filename_first_token.find_first_of(".");
+    std::string filename_second_token = filename_first_token.substr(0, found); // before yuv
     
-    int height = 240;
-    int width = 416;
-    // Read YUV
-    string f1_yuv = "/Volumes/DATA/TS/BQSquare_416x240_60.yuv";
-    string  f2_yuv = "/Users/hossam.amer/7aS7aS_Works/work/workspace/TESTS/hevc_intraML_bits/bin/Build/Products/Release/Gen/Seq-RECONS/BQSquare_416x240_60_51_1.yuv";
+    // get width and height
+    found = filename_second_token.find_last_of("_");
     
+    vector<string> sLists;
+    split1(filename_second_token, sLists, '_');
+    unsigned long nsLength = sLists.size();
+    
+    // width and height
+    int height = convertStringToNumber(sLists[nsLength - 2]);
+    int width  = convertStringToNumber(sLists[nsLength - 3]);
+    string rgbStr = sLists[nsLength-1];
+    int nComponents = 1;
+
+    if(rgbStr == "RGB")
+    {
+        nComponents = 3;
+    }
     
     char* buf_YUV = read_yuv(f1_yuv, width, height);
+    char* buf_YUV2 = read_yuv(f2_yuv, width, height);
     
     if(buf_YUV == NULL)
     {
@@ -151,47 +184,84 @@ int main(int argc, char** argv) {
         exit(0);
     }
     
-    char * buf_Y = new char[width * height];
-    for (int i = 0; i < width * height; i++)
-    {
-        buf_Y[i] = buf_YUV[i];
-    }
-    
-    
-    char* buf_YUV2 = read_yuv(f2_yuv, width, height);
-    
     if(buf_YUV2 == NULL)
     {
         cout << "buf_YUV2 file not found." << endl;
         exit(0);
     }
     
+    // YUV
+    char * buf_Y = new char[width * height];
+    char * buf_U = new char[width * height / 4];
+    char * buf_V = new char[width * height / 4];
+    
+    // YUV2
     char * buf_Y2 = new char[width * height];
+    char * buf_U2 = new char[width * height / 4];
+    char * buf_V2 = new char[width * height / 4];
+    
     for (int i = 0; i < width * height; i++)
     {
+        buf_Y[i]  = buf_YUV[i];
         buf_Y2[i] = buf_YUV2[i];
     }
     
+    if(nComponents > 1)
+    {
+        int start = width*height;
+        int end = start + (width*height/4);
+        
+        for(int i = start; i < end; i++)
+        {
+            buf_U[i]   = buf_YUV[i];
+            buf_U2[i] = buf_YUV2[i];
+        }
+        
+        int start2 = end;
+        int end2   = start + (width*height/4);
+        
+        for(int i = start2; i < end2; i++)
+        {
+            buf_V[i]    = buf_YUV[i];
+            buf_V2[i]   = buf_YUV2[i];
+        }
+    }
     
     // Convert Y into Mats
     cv::Mat Y1(height, width, CV_8UC1, &buf_Y[0]); //in case of BGR image use CV_8UC3
     cv::Mat Y2(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
     
-    
-    cout << int(buf_Y[0]) << endl;
-    cout << int(Y1.at<int>(0, 0)) << endl;
-    
     Scalar final_mssim = getMSSIM(Y1, Y2);
-    cout << "Final MSSIM Value  " << final_mssim << endl;
+    double y_ssim = final_mssim[0];
+    double u_ssim = 0;
+    double v_ssim = 0;
     
+    if(nComponents > 1)
+    {
+        cv::Mat U1(height/2, width/2, CV_8UC1, &buf_U[0]); //in case of BGR image use CV_8UC3
+        cv::Mat U2(height/2, width/2, CV_8UC1, &buf_U2[0]); //in case of BGR image use CV_8UC3
+        Scalar final_mssim = getMSSIM(U1, U2);
+        u_ssim = final_mssim[0];
+        
+        cv::Mat V1(height/2, width/2, CV_8UC1, &buf_V[0]); //in case of BGR image use CV_8UC3
+        cv::Mat V2(height/2, width/2, CV_8UC1, &buf_V2[0]); //in case of BGR image use CV_8UC3
+        final_mssim = getMSSIM(U1, U2);
+        v_ssim = final_mssim[0];
+    }
+
     
-    final_mssim = getMSSIM(Y2, Y1);
-    cout << "Final MSSIM Value  " << final_mssim << endl;
-    
+    double result = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
+    cout << "ssim=" << result << endl;
+
+    // free up resources
     delete [] buf_Y;
     delete [] buf_Y2;
+    delete [] buf_U;
+    delete [] buf_U2;
+    delete [] buf_V;
+    delete [] buf_V2;
     
-    
+
     return 0;
     
 }
