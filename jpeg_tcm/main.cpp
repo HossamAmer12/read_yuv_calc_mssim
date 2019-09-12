@@ -24,28 +24,6 @@
 using namespace std;
 using namespace cv;
 
-
-double getPSNR(const Mat& I1, const Mat& I2)
-{
-    Mat s1;
-    absdiff(I1, I2, s1);       // |I1 - I2|
-    s1.convertTo(s1, CV_32F);  // cannot make a square on 8 bits
-    s1 = s1.mul(s1);           // |I1 - I2|^2
-    
-    Scalar s = sum(s1);         // sum elements per channel
-    
-    double sse = s.val[0] + s.val[1] + s.val[2]; // sum channels
-    
-    if( sse <= 1e-10) // for small values return zero
-        return 0;
-    else
-    {
-        double  mse =sse /(double)(I1.channels() * I1.total());
-        double psnr = 10.0*log10((255*255)/mse);
-        return psnr;
-    }
-}
-
 Scalar getMSSIM( const Mat& i1, const Mat& i2)
 {
     const double C1 = 6.5025, C2 = 58.5225;
@@ -101,7 +79,6 @@ Scalar getMSSIM( const Mat& i1, const Mat& i2)
 
 char* read_yuv(string filename, int width, int height)
 {
-    int size = width*height;
     std::ifstream myfile (filename, std::ifstream::binary);
     
     if(myfile)
@@ -134,10 +111,10 @@ char* read_yuv(string filename, int width, int height)
 int main(int argc, char** argv) {
     
     
-    if(argc < 3)
+    if(argc < 4)
     {
         // Tell the user how to run the program
-        std::cerr << "Number of arguments should be 2: <file1> <file2>" << std::endl;
+        std::cerr << "Number of arguments should be 3: <file1> <file2> <out_file>" << std::endl;
         /* "Usage messages" are a conventional way of telling the user
          * how to run a program if they enter the command incorrectly.
          */
@@ -146,17 +123,17 @@ int main(int argc, char** argv) {
     
     //
     // read image 1
-    string f1 = "/Volumes/MULTICOMHD2/validation_original/1/ILSVRC2012_val_00000037.JPEG";
-    string  f2 = "/Volumes/MULTICOMHD2/validation_generated_QF/1/ILSVRC2012_val_00000037-QF-80.JPEG";
+//    string f1 = "/Volumes/MULTICOMHD2/validation_original/1/ILSVRC2012_val_00000037.JPEG";
+//    string  f2 = "/Volumes/MULTICOMHD2/validation_generated_QF/1/ILSVRC2012_val_00000037-QF-80.JPEG";
     
-    Mat image1;
-    image1 = imread(f1);
+    // Input file:
+    std::string f1_yuv = argv[1];
+
+    // Input file:
+    std::string f2_yuv = argv[2];
     
-    Mat image2;
-    image2 = imread(f2);
-    
-    Scalar out1 = getMSSIM(image1, image2);
-    cout << "Value  " << out1 << endl;
+    // Input file:
+    std::string out_file = argv[3];
     
     
     int height = 240;

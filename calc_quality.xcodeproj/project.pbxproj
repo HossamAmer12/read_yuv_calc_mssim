@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		904651FD232AD8020000A75A /* mainBackup.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mainBackup.txt; sourceTree = "<group>"; };
 		90DC915E21502544004FCBCF /* jpeg_tcm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = jpeg_tcm; sourceTree = BUILT_PRODUCTS_DIR; };
 		90DC9179215025B2004FCBCF /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				90DC9179215025B2004FCBCF /* main.cpp */,
+				904651FD232AD8020000A75A /* mainBackup.txt */,
 			);
 			path = jpeg_tcm;
 			sourceTree = "<group>";
