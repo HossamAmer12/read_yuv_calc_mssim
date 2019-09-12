@@ -133,8 +133,16 @@ char* read_yuv(string filename, int width, int height)
 // video-input-ssim.htm
 int main(int argc, char** argv) {
     
-    //create a gui window:
-    namedWindow("Output",1);
+    
+    if(argc < 3)
+    {
+        // Tell the user how to run the program
+        std::cerr << "Number of arguments should be 2: <file1> <file2>" << std::endl;
+        /* "Usage messages" are a conventional way of telling the user
+         * how to run a program if they enter the command incorrectly.
+         */
+        return 1;
+    }
     
     //
     // read image 1

@@ -65,9 +65,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		90DC915D21502544004FCBCF /* jpeg_tcm */ = {
+		90DC915D21502544004FCBCF /* calc_quality */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 90DC916521502544004FCBCF /* Build configuration list for PBXNativeTarget "jpeg_tcm" */;
+			buildConfigurationList = 90DC916521502544004FCBCF /* Build configuration list for PBXNativeTarget "calc_quality" */;
 			buildPhases = (
 				90DC915A21502544004FCBCF /* Sources */,
 				90DC915B21502544004FCBCF /* Frameworks */,
@@ -77,7 +77,7 @@
 			);
 			dependencies = (
 			);
-			name = jpeg_tcm;
+			name = calc_quality;
 			productName = jpeg_tcm;
 			productReference = 90DC915E21502544004FCBCF /* jpeg_tcm */;
 			productType = "com.apple.product-type.tool";
@@ -97,7 +97,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90DC915921502544004FCBCF /* Build configuration list for PBXProject "jpeg_tcm" */;
+			buildConfigurationList = 90DC915921502544004FCBCF /* Build configuration list for PBXProject "calc_quality" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -109,7 +109,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				90DC915D21502544004FCBCF /* jpeg_tcm */,
+				90DC915D21502544004FCBCF /* calc_quality */,
 			);
 		};
 /* End PBXProject section */
@@ -324,7 +324,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		90DC915921502544004FCBCF /* Build configuration list for PBXProject "jpeg_tcm" */ = {
+		90DC915921502544004FCBCF /* Build configuration list for PBXProject "calc_quality" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90DC916321502544004FCBCF /* Debug */,
@@ -333,7 +333,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90DC916521502544004FCBCF /* Build configuration list for PBXNativeTarget "jpeg_tcm" */ = {
+		90DC916521502544004FCBCF /* Build configuration list for PBXNativeTarget "calc_quality" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90DC916621502544004FCBCF /* Debug */,

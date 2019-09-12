@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "90DC915D21502544004FCBCF"
-               BuildableName = "jpeg_tcm"
-               BlueprintName = "jpeg_tcm"
-               ReferencedContainer = "container:jpeg_tcm.xcodeproj">
+               BuildableName = "calc_quality"
+               BlueprintName = "calc_quality"
+               ReferencedContainer = "container:calc_quality.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "90DC915D21502544004FCBCF"
-            BuildableName = "jpeg_tcm"
-            BlueprintName = "jpeg_tcm"
-            ReferencedContainer = "container:jpeg_tcm.xcodeproj">
+            BuildableName = "calc_quality"
+            BlueprintName = "calc_quality"
+            ReferencedContainer = "container:calc_quality.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "90DC915D21502544004FCBCF"
-            BuildableName = "jpeg_tcm"
-            BlueprintName = "jpeg_tcm"
-            ReferencedContainer = "container:jpeg_tcm.xcodeproj">
+            BuildableName = "calc_quality"
+            BlueprintName = "calc_quality"
+            ReferencedContainer = "container:calc_quality.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -75,9 +75,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "90DC915D21502544004FCBCF"
-            BuildableName = "jpeg_tcm"
-            BlueprintName = "jpeg_tcm"
-            ReferencedContainer = "container:jpeg_tcm.xcodeproj">
+            BuildableName = "calc_quality"
+            BlueprintName = "calc_quality"
+            ReferencedContainer = "container:calc_quality.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
