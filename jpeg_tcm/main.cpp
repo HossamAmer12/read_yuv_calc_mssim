@@ -44,6 +44,34 @@ static int convertStringToNumber(const string& str)
     return number;
 }
 
+double jpeg_encoder::getPSNR(const cv::Mat& i1, const cv::Mat& i2, int comp_width, int comp_height)
+{
+
+    int d     = CV_32F;
+    Mat I1, I2;
+    i1.convertTo(I1, d);           // cannot calculate on one byte large values
+    i2.convertTo(I2, d);
+
+
+    Mat s1;
+    absdiff(I1, I2, s1);       // |I1 - I2|
+    s1.convertTo(s1, CV_32F);  // cannot make a square on 8 bits
+    s1 = s1.mul(s1);           // |I1 - I2|^2
+
+    Scalar s = sum(s1);         // sum elements per channel
+    double mse = (s[0]); // sum channels
+
+    if( mse <= 1e-10) // for small values return zero
+        return 999.99;
+    else
+    {
+        double psnr = 10.0*log10(double(255*255*double(comp_width*comp_height))/mse);
+        return psnr;
+    }
+}
+
+
+
 Scalar getMSSIM( const Mat& i1, const Mat& i2)
 {
     const double C1 = 6.5025, C2 = 58.5225;
@@ -250,8 +278,8 @@ int main(int argc, char** argv) {
     }
 
     
-    double result = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
-    cout << "ssim=" << result << endl;
+    double ssim = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
+    cout << "ssim=" << ssim << endl;
 
     // free up resources
     delete [] buf_Y;
