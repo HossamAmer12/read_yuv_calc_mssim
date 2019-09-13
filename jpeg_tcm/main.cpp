@@ -94,31 +94,29 @@ static double getBpp(const vector<string>& result, string bitstream_file, int wi
             // cout << "frame_address " << frame_address << endl;
 
             // get hexadecimal1
-            int before_frame_address = 0;
-            // IDR is the last one
+            int after_frame_address = 0;
+            // if IDR is not the last one
             if( (1 + i) != result.size())
             {
                 vector<string> hexList1;
                 split1(result[1 + i], hexList1, ':');
                 string hexstring1 = hexList1[0];
                 // convert number to hexadecimal
-                before_frame_address = std::stoi(hexstring1, 0, 16);
-                len = 8 * (before_frame_address - frame_address); // in bits
+                after_frame_address = std::stoi(hexstring1, 0, 16);
             }
             else 
             {
-                len = 8 * (total_size - frame_address); // in bits    
+                after_frame_address = total_size;
             }
-
-            // cout << "len " << len << ", "  << 8*total_size << ", " << 8*frame_address << ", " << 8*before_frame_address << endl;
-
+            
+            len = after_frame_address - frame_address; // in bytes   
             break;
         }
         prev = current;
 
     }
     
-    double bpp = 1.0*len/(width * height); 
+    double bpp = 8.0 * len / (width * height); // in bits
     // remove the file 
     remove( "go.txt" );
     return bpp;
@@ -230,7 +228,8 @@ char* read_yuv(string filename, int width, int height)
         // get length of file:
         myfile.seekg (0, myfile.end);
         long long length = myfile.tellg();
-        cout << "Len in read yuv: " << length << endl;
+        // cout << "Len in read yuv: " << length << endl;
+
         myfile.seekg (0, myfile.beg);
         
         char * buffer = new char [length];
@@ -306,16 +305,16 @@ int main(int argc, char** argv) {
     int nComponents = 1;
 
     // You have to do this for hevc videos because they don't have the same format (_1 at the end)
-    cout << "Hardcoding width and height " << endl;
-    width = 504;
-    height = 336;
+    // cout << "Hardcoding width and height " << endl;
+    // width = 504;
+    // height = 336;
 
     if(rgbStr == "RGB")
     {
         nComponents = 3;
     }
     
-    char* buf_YUV = read_yuv(f1_yuv, width, height);
+    char* buf_YUV  = read_yuv(f1_yuv, width, height);
     char* buf_YUV2 = read_yuv(f2_yuv, width, height);
     
     if(buf_YUV == NULL)
@@ -373,22 +372,11 @@ int main(int argc, char** argv) {
             k++;
         }
     }
-    
-    // cout << "Reading DONE! " << endl;
-    // Convert YUV into Mats
-    // cv::Mat Yuv1(height, width, CV_8UC1, &buf_YUV[0]); //in case of BGR image use CV_8UC3
-    // cv::Mat Yuv2(height, width, CV_8UC1, &buf_YUV[0]); //in case of BGR image use CV_8UC3
-    // cout << getMSSIM(Yuv1,Yuv2)  << endl;
 
     // Convert Y into Mats
     cv::Mat Y1(height, width, CV_8UC1, &buf_Y[0]); //in case of BGR image use CV_8UC3
     cv::Mat Y2(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
     
-    
-    // Scalar final_mssim = getMSSIM(Y1, Y2);
-    // double y_ssim = final_mssim[0];
-    // double u_ssim = 0;
-    // double v_ssim = 0;
 
     Scalar final_mssim = getMSSIM(Y1, Y2);
     double y_ssim = final_mssim[0];
@@ -396,9 +384,6 @@ int main(int argc, char** argv) {
     double v_ssim = 0;
 
 
-
-   // cv::Mat Y1_psnr(height, width, CV_8UC1, &buf_Y[0]); //in case of BGR image use CV_8UC3
-    // cv::Mat Y2_psnr(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
     double y_psnr = getPSNR(Y1, Y2, width, height);
     double u_psnr = 0;
     double v_psnr = 0;
@@ -421,8 +406,8 @@ int main(int argc, char** argv) {
     }
 
     
-    reportMetrics(y_ssim, u_ssim, v_ssim);
-    reportMetrics(y_psnr, u_psnr, v_psnr);
+    // reportMetrics(y_ssim, u_ssim, v_ssim);
+    // reportMetrics(y_psnr, u_psnr, v_psnr);
 
     double ssim = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
     cout << "ssim=" << ssim << endl;
@@ -431,7 +416,6 @@ int main(int argc, char** argv) {
     cout << "psnr=" << psnr << endl;
 
     // bpp    
-    // ./hevcesbrowser_console_linux -i $f >> go.txt
     string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
     system(cmd.c_str());
 
@@ -439,29 +423,29 @@ int main(int argc, char** argv) {
     string cmd2 = "grep '^0x*' go.txt";
     vector<string> result = exec(cmd2.c_str());
 
+
     double bpp = getBpp(result, bitstream_file, width, height);
     cout << "bpp=" << bpp << endl;
+
 
     // Write file
     string fileNameTime = "";
     std::ostringstream ossTime;
+    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
     
-    ossTime << "Gen//Seq-Stats//" << g_input_FileName << "_" << g_qpInit << ".txt";
-    fileNameTime = ossTime.str();
-    Char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
-    FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
+    // Update the file path
+    // fileNameTime = ossTime.str(); // if you consturct it
+    fileNameTime = out_file;
+    char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
+    FILE*  my_pFileTime = fopen (pYUVFileNameTime, "w");
+    // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
     
     string text = "";
     std::ostringstream ossText;
-    double PSNR = (6.0*dPSNR[0] + dPSNR[1] + dPSNR[2])/8.0;
-    double MSSIM = (6.0*MSSIMyuvframe[0] + MSSIMyuvframe[1] + MSSIMyuvframe[2])/8.0;
-    double bpp   = 1.0*m_pcSliceEncoder->getTotalPicBits()/(g_FrameWidth*g_FrameHeight);
-    //    ossText << g_input_FileName << "_" << g_qpInit << "\t " << dResult << "\n";
-    ossText << bpp << "\t" << MSSIM << "\t" << PSNR << "\n";
+    ossText << bpp << "\t" << ssim << "\t" << psnr << "\n";
     text = ossText.str();
     fprintf(my_pFileTime, "%s", text.c_str());
     fclose(my_pFileTime);
-
 
     // free up resources
     delete [] buf_Y;
@@ -471,8 +455,7 @@ int main(int argc, char** argv) {
     delete [] buf_V;
     delete [] buf_V2;
     
-
     return 0;
     
-}
+} // end main
 
