@@ -454,6 +454,8 @@ int main(int argc, char** argv) {
     delete [] buf_U2;
     delete [] buf_V;
     delete [] buf_V2;
+    // delete [] buf_YUV;
+    // delete [] buf_YUV2;
     
     return 0;
     
