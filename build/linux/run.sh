@@ -7,7 +7,7 @@ QP=$1
 recons_hevc=/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Seq-RECONS/1/ILSVRC2012_val_00001000_504_336_RGB_${QP}_1.yuv
 bit_hevc=/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Seq-265/1/ILSVRC2012_val_00001000_504_336_RGB_${QP}_1.265
 
-out_file=/dev/null/null.txt
+out_file=null.txt
 
 # For HEVC Normal
 echo 'HEVC TEST QP = ' $QP
@@ -34,11 +34,19 @@ echo 'Recons FFMPEG: ' $recons_ffmpeg
 echo 'Bit265 FFMPEG: ' $bit_ffmpeg
 
 
-# To 265
-ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
+# To 265 with hevc
+time ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
+
+# To 265 with x265
+# time ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
 
 echo "&&&&"
+
+# with hevc
 echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
+
+# with x265
+# echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
 
 #./hevcesbrowser_console_linux -i $bit_ffmpeg >> go.txt
 #frame_size=$(grep '^0x*' go.txt) # lines start with
@@ -49,7 +57,31 @@ echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $i
 ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmpeg
 
 echo '&&&&'
-echo "ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmpeg"
+echo "ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p -preset ultrafast $recons_ffmpeg"
+
+echo '---------List YUV Files:'
+ls -lah $recons_hevc
+ls -lah $recons_ffmpeg
+
+echo '--------List 265 files:'
+ls -lah $bit_hevc
+ls -lah $bit_ffmpeg
+
+echo '------Calculate quality ffmpeg: '
+./calc_quality $input_yuv $recons_ffmpeg $bit_ffmpeg $out_file
+
+
+
+
+
+echo '##################'
+echo 'ffmpeg straight from yuv' # this way has the same quality metrics as the ffmpeg up there
+
+time ffmpeg -loglevel panic -y -f rawvideo -vcodec rawvideo -s 504x336 -pix_fmt yuv420p -i $input_yuv -c:v libx265 -crf $QP -preset ultrafast $bit_ffmpeg
+echo "ffmpeg -loglevel panic -y -f rawvideo -vcodec rawvideo -s 504x336 -pix_fmt yuv420p -i $input_yuv -c:v libx265 -crf $QP -preset ultrafast $OUTPUT_DEC_FILE1"
+
+# To yuv
+ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmpeg
 
 echo '---------List YUV Files:'
 ls -lah $recons_hevc
@@ -67,3 +99,4 @@ echo '------Calculate quality ffmpeg: '
 # Delete everything
 rm $bit_ffmpeg
 rm $recons_ffmpeg
+rm $out_file
