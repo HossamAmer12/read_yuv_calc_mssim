@@ -71,7 +71,7 @@ vector<string> exec(const char* cmd) {
 static double getBpp(const vector<string>& result, string bitstream_file, int width, int height)
 {
     ifstream file( bitstream_file, ios::binary | ios::ate);
-    int total_size = file.tellg();
+    long long total_size = file.tellg();
 
 
     std:string prev = "";
