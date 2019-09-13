@@ -420,7 +420,6 @@ int main(int argc, char** argv) {
     string go_file = out_file;     
     // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
     string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
-    cout << "cmd: " << cmd;
     system(cmd.c_str());
 
     // get all lines with 0x
@@ -429,28 +428,28 @@ int main(int argc, char** argv) {
     vector<string> result = exec(cmd2.c_str());
 
 
-    // double bpp = getBpp(result, bitstream_file, width, height, go_file);
-    // cout << "bpp=" << bpp << endl;
+    double bpp = getBpp(result, bitstream_file, width, height, go_file);
+    cout << "bpp=" << bpp << endl;
 
 
-    // // Write file
-    // string fileNameTime = "";
-    // std::ostringstream ossTime;
-    // ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
+    // Write file
+    string fileNameTime = "";
+    std::ostringstream ossTime;
+    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
     
-    // // Update the file path
-    // // fileNameTime = ossTime.str(); // if you consturct it
-    // fileNameTime = out_file;
-    // char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
-    // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "w");
-    // // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
+    // Update the file path
+    // fileNameTime = ossTime.str(); // if you consturct it
+    fileNameTime = out_file;
+    char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
+    FILE*  my_pFileTime = fopen (pYUVFileNameTime, "w");
+    // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
     
-    // string text = "";
-    // std::ostringstream ossText;
-    // ossText << bpp << "\t" << ssim << "\t" << psnr << "\n";
-    // text = ossText.str();
-    // fprintf(my_pFileTime, "%s", text.c_str());
-    // fclose(my_pFileTime);
+    string text = "";
+    std::ostringstream ossText;
+    ossText << bpp << "\t" << ssim << "\t" << psnr << "\n";
+    text = ossText.str();
+    fprintf(my_pFileTime, "%s", text.c_str());
+    fclose(my_pFileTime);
 
     // free up resources
     delete [] buf_Y;
