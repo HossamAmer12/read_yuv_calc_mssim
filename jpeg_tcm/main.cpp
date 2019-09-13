@@ -443,6 +443,25 @@ int main(int argc, char** argv) {
     cout << "bpp=" << bpp << endl;
 
     // Write file
+    string fileNameTime = "";
+    std::ostringstream ossTime;
+    
+    ossTime << "Gen//Seq-Stats//" << g_input_FileName << "_" << g_qpInit << ".txt";
+    fileNameTime = ossTime.str();
+    Char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
+    FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
+    
+    string text = "";
+    std::ostringstream ossText;
+    double PSNR = (6.0*dPSNR[0] + dPSNR[1] + dPSNR[2])/8.0;
+    double MSSIM = (6.0*MSSIMyuvframe[0] + MSSIMyuvframe[1] + MSSIMyuvframe[2])/8.0;
+    double bpp   = 1.0*m_pcSliceEncoder->getTotalPicBits()/(g_FrameWidth*g_FrameHeight);
+    //    ossText << g_input_FileName << "_" << g_qpInit << "\t " << dResult << "\n";
+    ossText << bpp << "\t" << MSSIM << "\t" << PSNR << "\n";
+    text = ossText.str();
+    fprintf(my_pFileTime, "%s", text.c_str());
+    fclose(my_pFileTime);
+
 
     // free up resources
     delete [] buf_Y;
