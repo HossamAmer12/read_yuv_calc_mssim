@@ -45,16 +45,18 @@ ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_
 echo '&&&&'
 echo "ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmpeg"
 
-echo 'List YUV Files:'
+echo '---------List YUV Files:'
 ls -lah $recons_hevc
 ls -lah $recons_ffmpeg
 
-echo 'List 265 files:'
+echo '--------List 265 files:'
 ls -lah $bit_hevc
 ls -lah $bit_ffmpeg
 
 echo 'Calculate quality ffmpeg: '
 ./calc_quality $input_yuv $recons_ffmpeg $bit_ffmpeg $out_file
+
+
 
 # Delete everything
 rm $bit_ffmpeg
