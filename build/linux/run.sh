@@ -7,7 +7,7 @@ QP=$1
 recons_hevc=/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Seq-RECONS/1/ILSVRC2012_val_00001000_504_336_RGB_${QP}_1.yuv
 bit_hevc=/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Seq-265/1/ILSVRC2012_val_00001000_504_336_RGB_${QP}_1.265
 
-out_file=/dev/null
+out_file=/dev/null/null.txt
 
 # For HEVC Normal
 echo 'HEVC TEST QP = ' $QP
