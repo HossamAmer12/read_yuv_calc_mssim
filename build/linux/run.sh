@@ -46,7 +46,6 @@ echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $i
 #rm go.txt
 
 # To yuv
-#ffmpeg -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmppeg
 ffmpeg -loglevel panic -y -i $bit_ffmpeg -c:v rawvideo -pix_fmt yuv420p $recons_ffmpeg
 
 echo '&&&&'
