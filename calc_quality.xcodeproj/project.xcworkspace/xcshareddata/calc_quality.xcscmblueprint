@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "09F8BB538F7DA537D96A4608476624B5958806FB",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "09F8BB538F7DA537D96A4608476624B5958806FB" : 9223372036854775807,
+    "359D6E2B3DAF8D159CEA17E79891577268DEDEE2" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "CCE27FDD-3B1E-4B99-9607-0A4D12133E0E",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "09F8BB538F7DA537D96A4608476624B5958806FB" : "read_yuv_calc_mssim\/",
+    "359D6E2B3DAF8D159CEA17E79891577268DEDEE2" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "calc_quality",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "calc_quality.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/HossamAmer12\/read_yuv_calc_mssim.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "09F8BB538F7DA537D96A4608476624B5958806FB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/HossamAmer12\/average_curves.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "359D6E2B3DAF8D159CEA17E79891577268DEDEE2"
+    }
+  ]
+}
