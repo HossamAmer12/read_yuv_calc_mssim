@@ -35,18 +35,18 @@ echo 'Bit265 FFMPEG: ' $bit_ffmpeg
 
 
 # To 265 with hevc
-time ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
+# ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
 
 # To 265 with x265
-# time ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
+time ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg
 
 echo "&&&&"
 
 # with hevc
-echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
+#echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v hevc -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
 
 # with x265
-# echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
+echo "ffmpeg -loglevel panic -y -f rawvideo -pix_fmt yuv420p -s:v 504x336  -i $input_yuv -c:v libx265 -crf $QP -f hevc -preset ultrafast $bit_ffmpeg"
 
 #./hevcesbrowser_console_linux -i $bit_ffmpeg >> go.txt
 #frame_size=$(grep '^0x*' go.txt) # lines start with

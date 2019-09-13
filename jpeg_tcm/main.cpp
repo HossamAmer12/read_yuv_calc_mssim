@@ -68,7 +68,7 @@ vector<string> exec(const char* cmd) {
     return result;
 }
 
-static double getBpp(const vector<string>& result, string bitstream_file, int width, int height)
+static double getBpp(const vector<string>& result, string bitstream_file, int width, int height, string go_file)
 {
     ifstream file( bitstream_file, ios::binary | ios::ate);
     long long total_size = file.tellg();
@@ -118,7 +118,8 @@ static double getBpp(const vector<string>& result, string bitstream_file, int wi
     
     double bpp = 8.0 * len / (width * height); // in bits
     // remove the file 
-    remove( "go.txt" );
+    // remove( "go.txt" );
+    remove( go_file.c_str() );
     return bpp;
 }
 
@@ -415,37 +416,41 @@ int main(int argc, char** argv) {
     double psnr = (6.0*y_psnr + u_psnr + v_psnr)/8.0;
     cout << "psnr=" << psnr << endl;
 
-    // bpp    
-    string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
+    // bpp
+    string go_file = out_file;     
+    // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
+    string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
+    cout << "cmd: " << cmd;
     system(cmd.c_str());
 
     // get all lines with 0x
-    string cmd2 = "grep '^0x*' go.txt";
+    // string cmd2 = "grep '^0x*' go.txt";
+    string cmd2 = "grep '^0x*' " + go_file;
     vector<string> result = exec(cmd2.c_str());
 
 
-    double bpp = getBpp(result, bitstream_file, width, height);
-    cout << "bpp=" << bpp << endl;
+    // double bpp = getBpp(result, bitstream_file, width, height, go_file);
+    // cout << "bpp=" << bpp << endl;
 
 
-    // Write file
-    string fileNameTime = "";
-    std::ostringstream ossTime;
-    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
+    // // Write file
+    // string fileNameTime = "";
+    // std::ostringstream ossTime;
+    // ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
     
-    // Update the file path
-    // fileNameTime = ossTime.str(); // if you consturct it
-    fileNameTime = out_file;
-    char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
-    FILE*  my_pFileTime = fopen (pYUVFileNameTime, "w");
-    // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
+    // // Update the file path
+    // // fileNameTime = ossTime.str(); // if you consturct it
+    // fileNameTime = out_file;
+    // char* pYUVFileNameTime = fileNameTime.empty()? NULL: strdup(fileNameTime.c_str());
+    // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "w");
+    // // FILE*  my_pFileTime = fopen (pYUVFileNameTime, "at");
     
-    string text = "";
-    std::ostringstream ossText;
-    ossText << bpp << "\t" << ssim << "\t" << psnr << "\n";
-    text = ossText.str();
-    fprintf(my_pFileTime, "%s", text.c_str());
-    fclose(my_pFileTime);
+    // string text = "";
+    // std::ostringstream ossText;
+    // ossText << bpp << "\t" << ssim << "\t" << psnr << "\n";
+    // text = ossText.str();
+    // fprintf(my_pFileTime, "%s", text.c_str());
+    // fclose(my_pFileTime);
 
     // free up resources
     delete [] buf_Y;
