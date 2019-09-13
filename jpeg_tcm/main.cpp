@@ -20,6 +20,15 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+
+#include <fstream>
+#include <regex>
+
 
 using namespace std;
 using namespace cv;
@@ -35,6 +44,86 @@ static void split1(const std::string& str, Container& cont, char delim = ' ')
     }
 }
 
+// std::string exec(const char* cmd) {
+vector<string> exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    // std::string result;
+
+    vector <string> result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    int i = 0;
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+                // contains
+        std::string zero = "0x0";
+        std::string data = buffer.data();
+        i = i  + int( data.find(zero) != std::string::npos);
+        if (i == 2) break;
+
+        result.push_back(data);
+            
+    }
+    return result;
+}
+
+static double getBpp(const vector<string>& result, string bitstream_file, int width, int height)
+{
+    ifstream file( bitstream_file, ios::binary | ios::ate);
+    int total_size = file.tellg();
+
+
+    std:string prev = "";
+    int len = 0;
+    for (int i = 0; i < result.size(); ++i)
+    {
+        string current = result[i];
+        string frame_marker = "NAL_IDR_W_RADL";
+
+        // found the frame marker
+        if(current.find(frame_marker) != std::string::npos)
+        {
+            // get hexadecimal2
+            vector<string> hexList2;
+            split1(current, hexList2, ':');
+            string hexstring2 = hexList2[0];
+            // convert number to hexadecimal
+            int frame_address = std::stoi(hexstring2, 0, 16);
+
+            // cout << "frame_address " << frame_address << endl;
+
+            // get hexadecimal1
+            int before_frame_address = 0;
+            // IDR is the last one
+            if( (1 + i) != result.size())
+            {
+                vector<string> hexList1;
+                split1(result[1 + i], hexList1, ':');
+                string hexstring1 = hexList1[0];
+                // convert number to hexadecimal
+                before_frame_address = std::stoi(hexstring1, 0, 16);
+                len = 8 * (before_frame_address - frame_address); // in bits
+            }
+            else 
+            {
+                len = 8 * (total_size - frame_address); // in bits    
+            }
+
+            // cout << "len " << len << ", "  << 8*total_size << ", " << 8*frame_address << ", " << 8*before_frame_address << endl;
+
+            break;
+        }
+        prev = current;
+
+    }
+    
+    double bpp = 1.0*len/(width * height); 
+    // remove the file 
+    remove( "go.txt" );
+    return bpp;
+}
+
 static int convertStringToNumber(const string& str)
 {
     int number;
@@ -44,7 +133,7 @@ static int convertStringToNumber(const string& str)
     return number;
 }
 
-double jpeg_encoder::getPSNR(const cv::Mat& i1, const cv::Mat& i2, int comp_width, int comp_height)
+static double getPSNR(const cv::Mat& i1, const cv::Mat& i2, int comp_width, int comp_height)
 {
 
     int d     = CV_32F;
@@ -62,7 +151,9 @@ double jpeg_encoder::getPSNR(const cv::Mat& i1, const cv::Mat& i2, int comp_widt
     double mse = (s[0]); // sum channels
 
     if( mse <= 1e-10) // for small values return zero
-        return 999.99;
+    {
+         return 999.99;
+    }
     else
     {
         double psnr = 10.0*log10(double(255*255*double(comp_width*comp_height))/mse);
@@ -125,6 +216,11 @@ Scalar getMSSIM( const Mat& i1, const Mat& i2)
     return mssim;
 }
 
+void reportMetrics(double x, double y, double z)
+{
+    cout << "X: " << x << "\nY: " << y << "\nZ: " << z << endl;
+}
+
 char* read_yuv(string filename, int width, int height)
 {
     std::ifstream myfile (filename, std::ifstream::binary);
@@ -134,17 +230,18 @@ char* read_yuv(string filename, int width, int height)
         // get length of file:
         myfile.seekg (0, myfile.end);
         long long length = myfile.tellg();
+        cout << "Len in read yuv: " << length << endl;
         myfile.seekg (0, myfile.beg);
         
         char * buffer = new char [length];
         
-        std::cout << "Reading " << length << " characters... " << endl;
+        // std::cout << "Reading " << length << " characters... " << endl;
         // read data as a block:
         myfile.read (buffer, length);
         
         if (myfile)
         {
-//         std::cout << "all characters read successfully." << endl;   
+        // std::cout << "all characters read successfully." << endl;   
         }
         else
             std::cout << "error: only " << myfile.gcount() << " could be read" << endl;
@@ -161,10 +258,10 @@ char* read_yuv(string filename, int width, int height)
 int main(int argc, char** argv) {
     
     
-    if(argc < 4)
+    if(argc < 5)
     {
         // Tell the user how to run the program
-        std::cerr << "Number of arguments should be 3: <file1> <file2> <out_file>" << std::endl;
+        std::cerr << "Number of arguments should be 4: <yuvfile1> <yuvfile2> <265file> <out_file>" << std::endl;
         /* "Usage messages" are a conventional way of telling the user
          * how to run a program if they enter the command incorrectly.
          */
@@ -176,27 +273,42 @@ int main(int argc, char** argv) {
 
     // Input file:
     std::string f2_yuv = argv[2];
-    
+
+    // 265 file
+    std::string bitstream_file = argv[3];
+
     // Output text file:
-    std::string out_file = argv[3];
-    
-    size_t found = f1_yuv.find_last_of("/\\");
-    std::string filename_first_token = f1_yuv.substr(found+1);
+    std::string out_file = argv[4];
+
+
+    // cout << 'File1: ' << f1_yuv << '\n, File2: ' << f2_yuv << endl;
+
+
+    size_t found = f2_yuv.find_last_of("/\\");
+    std::string filename_first_token = f2_yuv.substr(found+1);
     found = filename_first_token.find_first_of(".");
     std::string filename_second_token = filename_first_token.substr(0, found); // before yuv
+
+    // ILSVRC2012_val_00000001_504_376_RGB_51
+    // cout << filename_second_token << endl;
     
-    // get width and height
-    found = filename_second_token.find_last_of("_");
-    
+    // get width and height    
     vector<string> sLists;
     split1(filename_second_token, sLists, '_');
     unsigned long nsLength = sLists.size();
     
+    
     // width and height
-    int height = convertStringToNumber(sLists[nsLength - 2]);
-    int width  = convertStringToNumber(sLists[nsLength - 3]);
-    string rgbStr = sLists[nsLength-1];
+    int qp     = convertStringToNumber(sLists[nsLength - 1]);
+    string rgbStr = sLists[nsLength-2];
+    int height = convertStringToNumber(sLists[nsLength - 3]);
+    int width  = convertStringToNumber(sLists[nsLength - 4]);
     int nComponents = 1;
+
+    // You have to do this for hevc videos because they don't have the same format (_1 at the end)
+    cout << "Hardcoding width and height " << endl;
+    width = 504;
+    height = 336;
 
     if(rgbStr == "RGB")
     {
@@ -218,6 +330,7 @@ int main(int argc, char** argv) {
         exit(0);
     }
     
+
     // YUV
     char * buf_Y = new char[width * height];
     char * buf_U = new char[width * height / 4];
@@ -227,42 +340,68 @@ int main(int argc, char** argv) {
     char * buf_Y2 = new char[width * height];
     char * buf_U2 = new char[width * height / 4];
     char * buf_V2 = new char[width * height / 4];
-    
-    for (int i = 0; i < width * height; i++)
+
+    for (int i = 0; i < width * height; ++i)
     {
         buf_Y[i]  = buf_YUV[i];
         buf_Y2[i] = buf_YUV2[i];
+
     }
+
     
     if(nComponents > 1)
     {
         int start = width*height;
         int end = start + (width*height/4);
         
+        int j = 0;
         for(int i = start; i < end; i++)
         {
-            buf_U[i]   = buf_YUV[i];
-            buf_U2[i] = buf_YUV2[i];
+            buf_U[j]   = buf_YUV[i];
+            buf_U2[j] = buf_YUV2[i];
+            j++;
         }
         
         int start2 = end;
         int end2   = start + (width*height/4);
         
+        int k = 0;
         for(int i = start2; i < end2; i++)
         {
-            buf_V[i]    = buf_YUV[i];
-            buf_V2[i]   = buf_YUV2[i];
+            buf_V[k]    = buf_YUV[i];
+            buf_V2[k]   = buf_YUV2[i];
+            k++;
         }
     }
     
+    // cout << "Reading DONE! " << endl;
+    // Convert YUV into Mats
+    // cv::Mat Yuv1(height, width, CV_8UC1, &buf_YUV[0]); //in case of BGR image use CV_8UC3
+    // cv::Mat Yuv2(height, width, CV_8UC1, &buf_YUV[0]); //in case of BGR image use CV_8UC3
+    // cout << getMSSIM(Yuv1,Yuv2)  << endl;
+
     // Convert Y into Mats
     cv::Mat Y1(height, width, CV_8UC1, &buf_Y[0]); //in case of BGR image use CV_8UC3
     cv::Mat Y2(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
     
+    
+    // Scalar final_mssim = getMSSIM(Y1, Y2);
+    // double y_ssim = final_mssim[0];
+    // double u_ssim = 0;
+    // double v_ssim = 0;
+
     Scalar final_mssim = getMSSIM(Y1, Y2);
     double y_ssim = final_mssim[0];
     double u_ssim = 0;
     double v_ssim = 0;
+
+
+
+   // cv::Mat Y1_psnr(height, width, CV_8UC1, &buf_Y[0]); //in case of BGR image use CV_8UC3
+    // cv::Mat Y2_psnr(height, width, CV_8UC1, &buf_Y2[0]); //in case of BGR image use CV_8UC3
+    double y_psnr = getPSNR(Y1, Y2, width, height);
+    double u_psnr = 0;
+    double v_psnr = 0;
     
     if(nComponents > 1)
     {
@@ -270,16 +409,40 @@ int main(int argc, char** argv) {
         cv::Mat U2(height/2, width/2, CV_8UC1, &buf_U2[0]); //in case of BGR image use CV_8UC3
         Scalar final_mssim = getMSSIM(U1, U2);
         u_ssim = final_mssim[0];
+
+        u_psnr = getPSNR(U1, U2, width/2, height/2);
         
         cv::Mat V1(height/2, width/2, CV_8UC1, &buf_V[0]); //in case of BGR image use CV_8UC3
         cv::Mat V2(height/2, width/2, CV_8UC1, &buf_V2[0]); //in case of BGR image use CV_8UC3
         final_mssim = getMSSIM(U1, U2);
         v_ssim = final_mssim[0];
+
+        v_psnr = getPSNR(V1, V2, width/2, height/2);
     }
 
     
+    reportMetrics(y_ssim, u_ssim, v_ssim);
+    reportMetrics(y_psnr, u_psnr, v_psnr);
+
     double ssim = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
     cout << "ssim=" << ssim << endl;
+
+    double psnr = (6.0*y_psnr + u_psnr + v_psnr)/8.0;
+    cout << "psnr=" << psnr << endl;
+
+    // bpp    
+    // ./hevcesbrowser_console_linux -i $f >> go.txt
+    string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
+    system(cmd.c_str());
+
+    // get all lines with 0x
+    string cmd2 = "grep '^0x*' go.txt";
+    vector<string> result = exec(cmd2.c_str());
+
+    double bpp = getBpp(result, bitstream_file, width, height);
+    cout << "bpp=" << bpp << endl;
+
+    // Write file
 
     // free up resources
     delete [] buf_Y;
