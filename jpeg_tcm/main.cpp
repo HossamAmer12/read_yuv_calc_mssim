@@ -149,6 +149,7 @@ static double getPSNR(const cv::Mat& i1, const cv::Mat& i2, int comp_width, int 
     Scalar s = sum(s1);         // sum elements per channel
     double mse = (s[0]); // sum channels
 
+    // cout << "MSE: " << mse << endl;
     if( mse <= 1e-10) // for small values return zero
     {
          return 999.99;
@@ -358,12 +359,12 @@ int main(int argc, char** argv) {
         for(int i = start; i < end; i++)
         {
             buf_U[j]   = buf_YUV[i];
-            buf_U2[j] = buf_YUV2[i];
+            buf_U2[j]  = buf_YUV2[i];
             j++;
         }
         
         int start2 = end;
-        int end2   = start + (width*height/4);
+        int end2   = start2 + (width*height/4);
         
         int k = 0;
         for(int i = start2; i < end2; i++)
@@ -415,27 +416,33 @@ int main(int argc, char** argv) {
 
     double psnr = (6.0*y_psnr + u_psnr + v_psnr)/8.0;
     cout << "psnr=" << psnr << endl;
-
+    // cout << "HELLO" << endl;
     // bpp
-    string go_file = out_file;     
+    string fileNameTime = "";
+    std::ostringstream ossTime;
+    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << "_mock" << ".txt"; // ignore this one for now
+    // string go_file = out_file;     
+    string go_file = ossTime.str();     
     // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
-    string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
-    system(cmd.c_str());
-
+    // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
+    // system(cmd.c_str());
+    // cout << "HI" << endl;
+    system(("./hevcesbrowser_console_linux -i " + bitstream_file + ">>" + go_file).c_str());
+    // cout << "HELLO" << endl;
     // get all lines with 0x
     // string cmd2 = "grep '^0x*' go.txt";
     string cmd2 = "grep '^0x*' " + go_file;
     vector<string> result = exec(cmd2.c_str());
-
 
     double bpp = getBpp(result, bitstream_file, width, height, go_file);
     cout << "bpp=" << bpp << endl;
 
 
     // Write file
-    string fileNameTime = "";
-    std::ostringstream ossTime;
-    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
+    // string fileNameTime = "";
+    // std::ostringstream ossTime;
+    // ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << ".txt"; // ignore this one for now
+    // cout << "FILENAM: " <<  filename_second_token << endl;
     
     // Update the file path
     // fileNameTime = ossTime.str(); // if you consturct it
