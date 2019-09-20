@@ -401,7 +401,7 @@ int main(int argc, char** argv) {
         
         cv::Mat V1(height/2, width/2, CV_8UC1, &buf_V[0]); //in case of BGR image use CV_8UC3
         cv::Mat V2(height/2, width/2, CV_8UC1, &buf_V2[0]); //in case of BGR image use CV_8UC3
-        final_mssim = getMSSIM(U1, U2);
+        final_mssim = getMSSIM(V1, V2);
         v_ssim = final_mssim[0];
 
         v_psnr = getPSNR(V1, V2, width/2, height/2);
