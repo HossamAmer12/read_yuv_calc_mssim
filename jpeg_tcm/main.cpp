@@ -412,31 +412,45 @@ int main(int argc, char** argv) {
     // reportMetrics(y_psnr, u_psnr, v_psnr);
 
     double ssim = (6.0*y_ssim + u_ssim + v_ssim)/8.0;
-    cout << "ssim=" << ssim << endl;
-
     double psnr = (6.0*y_psnr + u_psnr + v_psnr)/8.0;
+    
+    // cout << "HELLO" << endl;
+    
+    if(nComponents == 1)
+    {
+        ssim = y_ssim;
+        psnr = y_psnr;
+    }
+
+    cout << "ssim=" << ssim << endl;
     cout << "psnr=" << psnr << endl;
-    // cout << "HELLO" << endl;
-    // bpp
+
+
+    double bpp = 0;
     string fileNameTime = "";
-    std::ostringstream ossTime;
-    ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << "_mock" << ".txt"; // ignore this one for now
-    // string go_file = out_file;     
-    string go_file = ossTime.str();     
-    // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
-    // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
-    // system(cmd.c_str());
-    // cout << "HI" << endl;
-    system(("./hevcesbrowser_console_linux -i " + bitstream_file + ">>" + go_file).c_str());
-    // cout << "HELLO" << endl;
-    // get all lines with 0x
-    // string cmd2 = "grep '^0x*' go.txt";
-    string cmd2 = "grep '^0x*' " + go_file;
-    vector<string> result = exec(cmd2.c_str());
+    if((bitstream_file.compare("NULL")) != 0) 
+    {
+        // bpp
+        fileNameTime = "";
+        std::ostringstream ossTime;
+        ossTime << "/media/h2amer/MULTICOM102/103_HA/MULTICOM103/set_yuv/Gen/Seq-Stats/" << filename_second_token << "_mock" << ".txt"; // ignore this one for now
+        // string go_file = out_file;     
+        string go_file = ossTime.str(); 
+        // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> go.txt";
+        // string cmd = "./hevcesbrowser_console_linux -i "  + bitstream_file + " >> " + go_file;
+        // system(cmd.c_str());
+        // cout << "HI" << endl;
+        system(("./hevcesbrowser_console_linux -i " + bitstream_file + ">>" + go_file).c_str());
+        // cout << "HELLO" << endl;
+        // get all lines with 0x
+        // string cmd2 = "grep '^0x*' go.txt";
+        string cmd2 = "grep '^0x*' " + go_file;
+        vector<string> result = exec(cmd2.c_str());
 
-    double bpp = getBpp(result, bitstream_file, width, height, go_file);
-    cout << "bpp=" << bpp << endl;
-
+        bpp = getBpp(result, bitstream_file, width, height, go_file);
+        cout << "bpp=" << bpp << endl;
+    }
+   
 
     // Write file
     // string fileNameTime = "";
